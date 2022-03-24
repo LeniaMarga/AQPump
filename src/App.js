@@ -4,8 +4,8 @@ import { setIntervalAsync } from 'set-interval-async/dynamic';
 import './App.css';
 import { clearIntervalAsync } from 'set-interval-async';
 
-const deltams = 20;
-const arduinoBase = 'https://airqualitytest.free.beeceptor.com/192.168.183.1';
+const deltams = 200; //inflation duration (ms) make it faster or slower
+const arduinoBase = 'http://192.168.1.186';
 const apiBase = 'https://api.usb.urbanobservatory.ac.uk/api/v2.0a/sensors/timeseries';
 
 const getUrlCurrent = (room, sensor) => [apiBase, room, sensor, 'raw'].join('/');
@@ -23,6 +23,7 @@ class App extends Component {
     this.updateActionTimer = this.updateActionTimer.bind(this);
   }
 
+  //is called every 20sec and fetches data for the above rooms & data sources
   downloadValues() {
     rooms.forEach(room => {
       sensors.forEach(sensor => axios(getUrlCurrent(room, sensor)).then(result => {
@@ -33,12 +34,13 @@ class App extends Component {
     });
   }
 
+  //rendering current values
   getStateValue(room, sensor) {
     var entry = this.state[room + "/" + sensor];
     if (entry) return entry.value;
     return "...";
   }
-
+ //user selects values
   onSourceChange(event) {
     this.setState({ selectedRoomSensor: event.target.value });
   }
@@ -62,6 +64,7 @@ class App extends Component {
   }
 
   componentDidUpdate = (prevProps, prevState) => {
+    //did the user change the selected room? or if the value has changed from last measurement (20s ago)
     if (prevState.selectedRoomSensor != this.state.selectedRoomSensor
       || prevState[this.state.selectedRoomSensor] != this.state[this.state.selectedRoomSensor]) {
       var currentValue = this.state.selectedValue;
@@ -69,8 +72,8 @@ class App extends Component {
       if (entry) {
         var delta = entry.value - currentValue;
 
-        var action = '/inflate'
-        if (delta < 0) action = '/deflate'
+        var action = '/inflate'              //the air quality deteriorates
+        if (delta < 0) action = '/deflate'  //the air quality improves
         if (delta != 0) {
           this.setState({ selectedDelta: delta, selectedValue: entry.value });
 
@@ -83,7 +86,7 @@ class App extends Component {
       }
     }
   }
-
+//showing seconds in the pages
   updateActionTimer() {
     if (this.actionTimeout) {
       var remaining = this.actionTimeoutTime - Date.now();
