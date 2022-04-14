@@ -24,3 +24,5 @@ yarn-error.log*
 
 .vscode/
 .vs/
+
+*_secrets.h
