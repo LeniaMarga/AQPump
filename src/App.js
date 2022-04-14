@@ -3,6 +3,7 @@ import axios from "axios";
 import { setIntervalAsync } from 'set-interval-async/dynamic';
 import './App.css';
 import { clearIntervalAsync } from 'set-interval-async';
+import { Scatter, ScatterChart, XAxis, YAxis } from 'recharts';
 
 const deltams = 200; //inflation duration (ms) make it faster or slower
 const arduinoBase = 'http://192.168.1.186';
@@ -34,12 +35,55 @@ class App extends Component {
     });
   }
 
+  //is called every 1min and fetches data for the above rooms & data historic sources
+  downloadHistory() {
+    rooms.forEach(room => {
+      sensors.forEach(sensor => axios(getUrlHistory(room, sensor)).then(result => {
+        let state = {};
+        state[room + "/" + sensor + "/history"] = result.data.historic.values;
+        this.setState(state);
+      }));
+    });
+  }
+
   //rendering current values
   getStateValue(room, sensor) {
     var entry = this.state[room + "/" + sensor];
     if (entry) return entry.value;
     return "...";
   }
+  getHistoryData(room, sensor) {
+    var data = [];
+
+    var values = this.state[room + "/" + sensor + "/history"];
+    if (values) {
+      values.forEach(value => {
+        var time = new Date(value.time).getTime();
+        data.push({ "x": time, "y": value.value });
+      });
+    }
+
+    return data;
+  }
+  getHistoryTimespan() {
+    var globalStartTime = Number.NaN;
+    var globalEndTime = Number.NaN;
+
+    rooms.forEach(room => {
+      sensors.forEach(sensor => {
+        var values = this.state[room + "/" + sensor + "/history"];
+        if (values) {
+          var startTime = new Date(values[values.length-1]).getTime();
+          var endTime = new Date(values[0]).getTime();
+          if (Number.isNaN(globalStartTime) || startTime < globalStartTime) globalStartTime = startTime;
+          if (Number.isNaN(globalEndTime) || endTime > globalEndTime) globalEndTime = endTime;
+        }
+      })
+    });
+
+    return [ globalStartTime, globalEndTime ];
+  }
+
  //user selects values
   onSourceChange(event) {
     this.setState({ selectedRoomSensor: event.target.value });
@@ -101,11 +145,14 @@ class App extends Component {
 
   componentDidMount() {
     this.downloadValues();
-    this.downloadIntervalAsync = setIntervalAsync(this.downloadValues, 20000);
+    this.downloadHistory();
+    this.downloadValuesIntervalAsync = setIntervalAsync(this.downloadValues, 20000);
+    this.downloadHistoryIntervalAsync = setIntervalAsync(this.downloadHistory, 60000);
   }
 
   componentWillUnmount() {
-    clearInterval(this.downloadIntervalAsync);
+    clearInterval(this.downloadValuesIntervalAsync);
+    clearInterval(this.downloadHistoryIntervalAsync);
     clearTimeout(this.actionTimeout);
   }
 
@@ -117,10 +164,17 @@ class App extends Component {
         <table>
           {rooms.map((room, index) => (
             <tbody key={room}>
-              <tr><th>{room}</th><th>value</th></tr>
+              <tr><th>{room}</th><th>value</th><th>history</th></tr>
               {sensors.map((sensor, index) => (
                 <tr key={sensor}><td><label><input name="source" type="radio" value={room + "/" + sensor} onChange={this.onSourceChange} />{sensor}</label></td>
                   <td>{this.getStateValue(room, sensor)}</td>
+                  <td>
+                    <ScatterChart width={200} height={32}>
+                      <XAxis dataKey="x" hide domain={this.getHistoryTimespan()} />
+                      <YAxis dataKey="y" hide domain={['dataMin', 'dataMax']} />
+                      <Scatter data={this.getHistoryData(room, sensor)} line={{ stroke: 'black' }} fill='transparent' />
+                    </ScatterChart>
+                  </td>
                 </tr>
               ))}
             </tbody>))}
