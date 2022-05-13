@@ -6,3 +6,6 @@ th { background-color:aliceblue; padding: 0.4em 0; }
 td, th { border: solid 1px lightblue }
 h1 { color: white; background: lightskyblue; margin: 0; padding: 0.5em }
 p { margin: 1em }
+#dashboard { display: flex; flex-wrap:wrap }
+#right { display: flex; flex-direction:column}
+input[type=radio] { cursor: pointer }

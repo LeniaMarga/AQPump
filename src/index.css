@@ -11,3 +11,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#scriptButtons { display: flex; justify-content: flex-end; padding-right: 0.5em }
+#scriptButtons button { margin: 0 0.5em }
+input[name=script] { width: 50px }
