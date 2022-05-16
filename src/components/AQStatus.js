@@ -3,6 +3,14 @@ import global from '../global.js';
 const { arduinos } = global;
 
 class AQStatus extends Component {
+
+    onZero = () => {
+        arduinos.forEach(arduino => {
+            arduino.value = 0;
+            arduino.invalidate()
+        });
+    }
+
     render() {
         return (
             <>
@@ -11,7 +19,7 @@ class AQStatus extends Component {
                     <tbody>
                         {arduinos.map((arduino, index) => (
                             <tr key={arduino.key}>
-                                <th>{arduino.id}</th>
+                                <th title={arduino.base}>{arduino.id}</th>
                                 <td>{arduino.value}</td>
                                 <td>{arduino.getValueDelta().toFixed(2)}</td>
                                 <td>{arduino.action}</td>
@@ -21,6 +29,9 @@ class AQStatus extends Component {
                         ))}
                     </tbody>
                 </table>
+                <div id="statusButtons">
+                    <button onClick={this.onZero}>reset values</button>
+                </div>
             </>
         )
     }

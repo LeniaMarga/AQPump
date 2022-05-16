@@ -21,6 +21,8 @@ export default {
         }
         var higherColor = gradient[i + 1];
 
+        return lowerColor; // no gradient
+
         var ratio = (value - gradient[i - 2]) / (gradient[i] - gradient[i - 2]);
         return [
             lowerColor[0] * (1 - ratio) + (higherColor[0] * ratio),

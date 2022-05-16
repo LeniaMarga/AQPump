@@ -13,5 +13,7 @@ code {
 }
 
 #scriptButtons { display: flex; justify-content: flex-end; padding-right: 0.5em }
-#scriptButtons button { margin: 0 0.5em }
+#statusButtons { display: flex; justify-content: flex-start; padding-left: 0.5em }
+button { margin: 0 0.5em }
 input[name=script] { width: 50px }
+input[name=rgb] { width: 3em }

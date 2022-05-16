@@ -9,3 +9,4 @@ p { margin: 1em }
 #dashboard { display: flex; flex-wrap:wrap }
 #right { display: flex; flex-direction:column}
 input[type=radio] { cursor: pointer }
+table#manual td { padding: 0em }

@@ -165,7 +165,7 @@ class AQSourceSelector extends Component {
             <tbody key={sensor.key}>
               <tr>
                 {arduinos.map((arduino, index) => (
-                  <th key={arduino.key}>{arduino.id}</th>
+                  <th key={arduino.key} title={arduino.base}>{arduino.id}</th>
                 ))}
                 <th>room</th><th>{sensor.id}</th><th>history</th><th>play on</th>
               </tr>
