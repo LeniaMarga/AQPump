@@ -5,7 +5,7 @@ const apiBase = 'https://api.usb.urbanobservatory.ac.uk/api/v2.0a/sensors/timese
 const getUrlCurrent = (room, sensor) => [apiBase, room, sensor, 'raw'].join('/');
 const getUrlHistory = (room, sensor) => getUrlCurrent(room, sensor) + '/historic?outputAs=json';
 
-class Room extends GlobalState {
+class UsbRoom extends GlobalState {
     constructor(id) {
         super(id);
     }
@@ -24,4 +24,4 @@ class Room extends GlobalState {
     }
 }
 
-export default Room;
+export default UsbRoom;
