@@ -56,6 +56,8 @@ const luftioRoomDefinitions = [
 ];
 
 
+//const rooms = usbRoomDefinitions.map(room => new UsbRoom(room.id));
+//const sensors = usbSensorDefinitions.map(sensor => new Sensor(sensor.id, sensor.scale));
 const rooms = luftioRoomDefinitions.map(room => new LuftioRoom(room.id, room.deviceGuid));
 const sensors = luftioSensorDefinitions.map(sensor => new Sensor(sensor.id, sensor.scale));
 const arduinos = arduinoDefinitions.map(arduino => new Arduino(arduino.id, arduino.base));

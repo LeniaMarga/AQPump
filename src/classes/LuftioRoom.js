@@ -3,13 +3,14 @@ import axios from "axios";
 
 const apiBase = 'https://app.luftio.com/tb/api/plugins/telemetry/DEVICE';
 
-// Luftio seems to measure every ~40 s
-const historySpanMs = 1000 * 60 * 30; // 30 minutes
+// Luftio seems to measure every ~40 s, USB history returns 1 day with every 15 minutes
+const historySpanMs = 1000 * 86400; // 1 day
+const historyAggregationMs = 1000 * 60 * 15 // 15 minutes
 const now = (delta = 0) => new Date().getTime() + delta;
 
 const getUrlDevice = (deviceGuid) => [apiBase, deviceGuid, 'values/timeseries'].join('/');
 const getUrlCurrent = (deviceGuid, sensor) => getUrlDevice(deviceGuid) + '?keys=' + sensor.id;
-const getUrlHistory = (deviceGuid, sensor) => getUrlCurrent(deviceGuid, sensor) + '&' +['startTs=' + now(-historySpanMs), 'endTs=' + now()].join('&');
+const getUrlHistory = (deviceGuid, sensor) => getUrlCurrent(deviceGuid, sensor) + '&' +['startTs=' + now(-historySpanMs), 'endTs=' + now(), 'interval=' + historyAggregationMs, 'agg=AVG'].join('&');
 
 var withToken = {
     headers: {
