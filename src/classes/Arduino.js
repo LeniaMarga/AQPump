@@ -11,7 +11,11 @@ class Arduino extends GlobalState {
         this.sensor = null;
         this.value = 0;
         this.lastValue = 0;
-        this.color = [0, 0, 0];
+
+        this.startColor = [0, 0, 0];
+        this.endColor = [0, 0, 0];
+        this.ledPattern = 0;
+        this.ledDelay = 0;
         
         this.action = "";
         this.actionStatus = "";
@@ -68,26 +72,75 @@ class Arduino extends GlobalState {
     inflateAsync = (color) => this.executeWithColorAsync('/inflate', color);
     deflateAsync = (color) => this.executeWithColorAsync('/deflate', color);
 
-    setColor = (color) => {
-        this.color = color;
-        this.executeWithColorAsync("", color);
+    setEndColor = (color) => {
+        this.endColor = color;
+        this.executeWithPatternAsync("", color);
         this.invalidate();
     }
-    setR = r => {
-        this.color[0] = r;
-        this.setColor(this.color);
+    setEndR = r => {
+        this.endColor[0] = r;
+        this.setEndColor(this.endColor);
     }
-    setG = g => {
-        this.color[1] = g;
-        this.setColor(this.color);
+    setEndG = g => {
+        this.endColor[1] = g;
+        this.setEndColor(this.endColor);
     }
-    setB = b => {
-        this.color[2] = b;
-        this.setColor(this.color);
+    setEndB = b => {
+        this.endColor[2] = b;
+        this.setEndColor(this.endColor);
     }
 
+    setStartColor = (color) => {
+        this.endColor = color;
+        this.executeWithPatternAsync("", undefined, color);
+        this.invalidate();
+    }
+    setStartR = r => {
+        this.startColor[0] = r;
+        this.setPattern(this.startColor);
+    }
+    setStartG = g => {
+        this.startColor[1] = g;
+        this.setPattern(this.startColor);
+    }
+    setStartB = b => {
+        this.startColor[2] = b;
+        this.setPattern(this.startColor);
+    }
+
+    setPattern = ledPattern => {
+        this.ledPattern = ledPattern;
+        this.executeWithPatternAsync("", undefined, undefined, this.ledPattern);
+        this.invalidate();
+    }
+    setDelay = ledDelay => {
+        this.ledDelay = ledDelay;
+        this.executeWithPatternAsync("", undefined, undefined, undefined, this.ledDelay);
+        this.invalidate();
+    }
+    setColor = color => {
+        this.ledPattern = 0;
+        this.endColor = color;
+        this.executeWithPatternAsync("", this.endColor, undefined, this.ledPattern);
+        this.invalidate();
+    }
+
+    showPattern = () => {
+        this.executeWithPatternAsync("", this.endColor, this.startColor, this.ledPattern, this.ledDelay);
+        this.invalidate();    
+    }
+    
     executeWithColorAsync = (action, color) => {
-        if (color) action += "?r=" + Math.round(color[0]) + "&g=" + Math.round(color[1]) + "&b=" + Math.round(color[2]);
+        var pattern = undefined;
+        if (color) pattern = 0;
+        return this.executeWithPatternAsync(action, color, undefined, pattern);
+    };
+    executeWithPatternAsync = (action, endColor, startColor, pattern, delay) => {
+        if (endColor !== undefined || startColor !== undefined || pattern !== undefined || delay !== undefined) action += "?";
+        if (startColor !== undefined) action += "&R=" + Math.round(startColor[0]) + "&G=" + Math.round(startColor[1]) + "&B=" + Math.round(startColor[2]);
+        if (endColor !== undefined) action += "&r=" + Math.round(endColor[0]) + "&g=" + Math.round(endColor[1]) + "&b=" + Math.round(endColor[2]);
+        if (pattern !== undefined) action += "&p=" + pattern;
+        if (delay !== undefined) action += "&d=" + delay;
         return this.executeAsync(action);
     };
     executeAsync = (action) => {

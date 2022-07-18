@@ -16,4 +16,5 @@ code {
 #statusButtons { display: flex; justify-content: flex-start; padding-left: 0.5em }
 button { margin: 0 0.5em }
 input[name=script] { width: 50px }
-input[name=rgb] { width: 3em }
+input[type=number] { width: 3em }
+.inputLabel { font-family: Arial; font-size: 9pt; }
